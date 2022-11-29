@@ -1,0 +1,332 @@
+
+TYPE OF DATA    :character, logical, numeric(integer, double), complex, raw 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+> vec <- factor(c('1', '2', 'tom'))
+> str(vec)        
+ Factor w/ 3 levels "1","2","tom": 1 2 3
+
+#  str()
+
+
+
+> vec_factor_chr <- as.character(vec)
+> str(vec_factor_chr)
+ chr [1:3] "1" "2" "tom"
+
+
+> unique(vec)
+[1] 1   2   tom
+Levels: 1 2 tom
+
+
+> unique(vec_factor_chr)
+[1] "1"   "2"   "tom"
+
+> table(vec_factor_chr)
+vec_factor_chr
+  1   2 tom 
+  1   1   1 
+
+> table(vec)
+vec
+  1   2 tom 
+  1   1   1 
+> 
+
+
+>  c(1:6) %in% seq(2,15,2)                                  #  %in%判断元素是否属于集合， 左边向量是否属于右边集合
+[1] FALSE  TRUE FALSE  TRUE FALSE  TRUE
+> 
+
+
+
+> a <- c(1:6) 
+> a[a %in% seq(2,15,2)]
+[1] 2 4 6
+> a[!( a %in% seq(2,15,2))]
+[1] 1 3 5
+
+> is.element( c(1:6) , seq(2,15,2))
+[1] FALSE  TRUE FALSE  TRUE FALSE  TRUE
+
+> 
+
+a[is.element( a, seq(2,15,2))]
+[1] 2 4 6
+
+
+> vec <- seq(1,20,2)
+> mat <- matrix(vec, nrow=2)
+> mat
+     [,1] [,2] [,3] [,4] [,5]
+[1,]    1    5    9   13   17
+[2,]    3    7   11   15   19
+
+
+
+
+> mat <- matrix(vec, ncol=2)
+> mat
+     [,1] [,2]
+[1,]    1   11
+[2,]    3   13
+[3,]    5   15
+[4,]    7   17
+[5,]    9   19
+
+
+> (mat <- matrix(vec, ncol=2, byrow=TRUE))     #默认是按照列来排列矩阵。
+     [,1] [,2]
+[1,]    1    3
+[2,]    5    7
+[3,]    9   11
+[4,]   13   15
+[5,]   17   19
+
+
+
+> (mat <- cbind(c(1,2, 3,5 ), 1:4, 2:5))      #cbind()来生成矩阵   只有按列来生成，   分为cbind()和rbind()   colume, row
+     [,1] [,2] [,3]
+[1,]    1    1    2
+[2,]    2    2    3
+[3,]    3    3    4
+[4,]    5    4    5
+
+
+
+> (mat <- cbind(c(1,2, 3,5 ), 1:4, seq(1,10,length.out=4)))          #seq(1, 10 ,length.out = 4)
+     [,1] [,2] [,3]
+[1,]    1    1    1
+[2,]    2    2    4
+[3,]    3    3    7
+[4,]    5    4   10
+> (mat <- rbind(c(1,2, 3,5 ), 1:4, seq(1,10,length.out=4)))
+     [,1] [,2] [,3] [,4]
+[1,]    1    2    3    5
+[2,]    1    2    3    4
+[3,]    1    4    7   10
+> diag(4)                                                    #diag(c() )   对角线矩阵生成
+     [,1] [,2] [,3] [,4]
+[1,]    1    0    0    0
+[2,]    0    1    0    0
+[3,]    0    0    1    0
+[4,]    0    0    0    1
+> diag(c(1,4,6,8,9))
+     [,1] [,2] [,3] [,4] [,5]
+[1,]    1    0    0    0    0
+[2,]    0    4    0    0    0
+[3,]    0    0    6    0    0
+[4,]    0    0    0    8    0
+[5,]    0    0    0    0    9
+
+
+
+
+> colnames(mat) <-c ('a', 'b', 'c', 'd')
+>  rownames(mat) <-c ('a', 'b', 'c')                        #row和colume命名的函数    colnames()  rownames()
+>  mat
+  a b c  d
+a 1 2 3  5
+b 1 2 3  4
+c 1 4 7 10
+> dim(mat)                       #dim() 获取矩阵、数组、dataframe的规格    row col
+[1] 3 4
+> ncol(mat)                       #ncol()
+[1] 4
+> nrow(mat)                        #nrow()
+[1] 3
+
+
+> length(mat)                     #length()
+[1] 12
+> mat[3,4]                         #[row, col]   获取取值
+[1] 10
+
+
+> mat[,2]
+a b c 
+2 2 4 
+> mat[1,]
+a b c d 
+1 2 3 5 
+
+
+> mat[,c('b','d')]               #花式查找的方法   行列名查找
+  b  d
+a 2  5
+b 2  4
+c 4 10
+
+
+> mat %% 2==0
+      a    b     c     d
+a FALSE TRUE FALSE FALSE
+b FALSE TRUE FALSE  TRUE
+c FALSE TRUE FALSE  TRUE
+
+> mat[mat %% 2==0]
+[1]  2  2  4  4 10
+
+
+> t(mat)                     #t()  转置矩阵的方程， 行列互换
+  a b  c
+a 1 1  1
+b 2 2  4
+c 3 3  7
+d 5 4 10
+
+
+> mat
+  a b c  d
+a 1 2 3  5
+b 1 2 3  4
+c 1 4 7 10
+
+
+> mat <- matrix(1:24, nrow=4)
+> mat
+     [,1] [,2] [,3] [,4] [,5] [,6]
+[1,]    1    5    9   13   17   21
+[2,]    2    6   10   14   18   22
+[3,]    3    7   11   15   19   23
+[4,]    4    8   12   16   20   24
+
+> mat[,1]
+[1] 1 2 3 4
+
+> mat <- matrix(1:24, nrow=4, byrow=TRUE)
+
+
+
+> mat %*% mat[,1]
+Error in mat %*% mat[, 1] : non-conformable arguments
+> mat %*% mat[1,]
+     [,1]
+[1,]   91
+[2,]  217
+[3,]  343
+[4,]  469
+> mat %*% t(mat)
+     [,1] [,2] [,3] [,4]
+[1,]   91  217  343  469
+[2,]  217  559  901 1243
+[3,]  343  901 1459 2017
+[4,]  469 1243 2017 2791
+> mat <- cbind(1, 2, 2:4)
+> mat
+     [,1] [,2] [,3]
+[1,]    1    2    2
+[2,]    1    2    3
+[3,]    1    2    4
+> det(mat)
+[1] 0
+
+> df <- data.frame(id= c('a', 'b', 'c', 'd'))
+> summary(df)
+      id           
+ Length:4          
+ Class :character  
+ Mode  :character
+
+factor(level = c(), labels = c())               #为因子进行所含的原数据以及其标签的注明。
+
+paste(c(), seq(), sep = '_')            #paste()用于character的合成后的结果输出，sep添加多数据来源时的相间隔
+
+paste(collapse = '')                       #collapse用于添加单数据来源时的间隔。
+
+as.double()                                  #double 浮点小数
+as.numeric()                                  
+
+ typeof()
+
+                                       rep()  重复输出序列
+rep(x, times, length.out, each)         times 为序列重复次数，  each 为每个元素分别重复的次数。
+
+rep(1:3, c(2,1,2))     #特殊，按照规则重复序列中的各元素。
+ 
+
+seq(from, to, by, length.out, along.with, )        along.with  以该参数的长度为序列的长度。
+
+                                               #R中不同长度的向量在运算时会出现短的自动循环补齐以配合长的向量
+
+c(1,2) > c(1, 2,2, 4)        会出现不同长度向量的自动循环补齐
+
+
+                                   字符类型的向量，转义符号\         \'  \'
+writeLines('Is \'you\' a Chinese name?')        输出纯字符串内容    like print()?
+
+
+data.frame()                           #数据框的操作步骤
+
+x1 <- c(11,22,33,44,55)
+x2 <- c(22,33,44,55,66)
+
+data1 <- data.frame(身高= x1, '重' = x2)
+                                                       #此处的变量可以选择使用不加引号的方式写出。
+
+ggplot(data1,aes(身高, 重))+
+  geom_point()
+
+head(x, n)   #显示头起的数据, n为要显示的行数，默认为6
+tail(x, n)   #显示尾部最后的数据，方法与head类似
+
+print(x, n = )    #显示数据框时可以通过n确定要显示的行数
