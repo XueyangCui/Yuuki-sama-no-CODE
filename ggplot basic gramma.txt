@@ -4,9 +4,11 @@ ggplot  basic  gramma
 1. ggplot（）
 
 
-2.  mapping(x, y, color, size, shape, fill , alpha 透明度)      此处要为映射，而非直接指定具体值
+2.  mapping(x, y, color, size, shape, fill , alpha 透明度)      
+此处要为映射，而非直接指定具体值
 
-3.  geom区：   geom_point 散点图   line折线图   smooth拟合曲线   bai、col条形图，  histogram直方图，  density概率密度图，  boxplot箱线图，
+3.  geom区：   geom_point 散点图   line折线图   smooth拟合曲线   bai、col条形图，  
+histogram直方图，  density概率密度图，  boxplot箱线图，
 abline 参考直线图
 
 
@@ -42,21 +44,25 @@ labs(title, subtitle, caption )  设置标题等的文字
               brewer:使用ColorBrewer的颜色
               grey:使用不同程度的灰色
     
-    scale_color_manual(values= c(), labels = c())        scale_fill_brewer(palette = ')       如scale_fill_brewer(palette = 'Accent')
-                                                                     RColorBrewer使用  brewer.pal.info 查询可能的调色板。
+    scale_color_manual(values= c(), labels = c())        scale_fill_brewer(palette = ')      
+     如scale_fill_brewer(palette = 'Accent')
+    RColorBrewer使用  brewer.pal.info 查询可能的调色板。
 
 连续变量时：   gradient:二色渐变色
               gradient2:设置三色渐变色
               distiller:使用ColorBrewer的颜色
-              identity:使用color变量对应的颜色，离散、连续均可以，  identity本身就是不进行调整。       #此处的值均为调整连续变量
+              identity:使用color变量对应的颜色，离散、连续均可以，  identity本身就是不进行调整。       
+              #此处的值均为调整连续变量
 
               scale_color_gradient(low = , high = )          scale_color_distiller(palette = )
 
 添加文字标注：    ggrepel::      packages           
-                使用geom_label_repel()、 geom_text_repel(),         对label 给与美学映射      aes(label = model)    数据的分类             
+                使用geom_label_repel()、 geom_text_repel(),         
+                对label 给与美学映射      aes(label = model)    数据的分类             
 
 annotate(geom = 'text', x = , y = , label = '', size , color )     在图形的中间添加文字内容
-annotate(geom = 'text', x = 'suv', y = 60 , label = '123', size = 10 , color = 'red' )    离散变量时，标注。
+annotate(geom = 'text', x = 'suv', y = 60 , label = '123', size = 10 , color = 'red' )    
+                离散变量时，标注。
 
 
 
