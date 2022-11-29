@@ -1,0 +1,67 @@
+ggplot  basic  gramma
+
+
+1. ggplot（）
+
+
+2.  mapping(x, y, color, size, shape, fill , alpha 透明度)      此处要为映射，而非直接指定具体值
+
+3.  geom区：   geom_point 散点图   line折线图   smooth拟合曲线   bai、col条形图，  histogram直方图，  density概率密度图，  boxplot箱线图，
+abline 参考直线图
+
+
+关于分组美学   group，  在映射处，根据group对变量分组，  比如折现图只连接相关的组。
+
+4.  标度      scale_<MAPPING>_<KIND>()
+常见的标度： x , y,  和color， fill, shape, size 产生的图例
+
+scale_*_continuous(breaks， labels)    x, y  连续变量的坐标轴修改         
+                        labels = scales::percent百分数、scientific科学计数、dollar美元格式设置特殊格式        
+
+
+scale_*_discrete(labels= ),     x,y    离散变量坐标轴的标签修改  搭配bar图使用
+
+scale_x_date(date_breaks, date_labels)  设置x轴刻度为日期刻度，    
+
+labs(x, y )       xlab(), ylab()        如果前面aes中有颜色美学，则可以在labs()中加入color = '', 为图例命名
+                    图例位置：   theme(legend.position = 'top'),  none, top,bottom, left, right
+
+设置坐标轴的范围      coord_cartesian(xlim, ylim)      或者xlim()、ylim()   
+
+scale_x_log10()  变换坐标轴
+
+
+labs(title, subtitle, caption )  设置标题等的文字
+
+
+
+设置fill color来调整数据的显示效果         RColorBrewer、colorspace扩展包
+
+离散变量时：   manual:直接指定分组的颜色     
+              hue:通过改变色相(hue)饱和度(chroma)和亮度(luminosity)调整颜色。
+              brewer:使用ColorBrewer的颜色
+              grey:使用不同程度的灰色
+    
+    scale_color_manual(values= c(), labels = c())        scale_fill_brewer(palette = ')       如scale_fill_brewer(palette = 'Accent')
+                                                                     RColorBrewer使用  brewer.pal.info 查询可能的调色板。
+
+连续变量时：   gradient:二色渐变色
+              gradient2:设置三色渐变色
+              distiller:使用ColorBrewer的颜色
+              identity:使用color变量对应的颜色，离散、连续均可以，  identity本身就是不进行调整。       #此处的值均为调整连续变量
+
+              scale_color_gradient(low = , high = )          scale_color_distiller(palette = )
+
+添加文字标注：    ggrepel::      packages           
+                使用geom_label_repel()、 geom_text_repel(),         对label 给与美学映射      aes(label = model)    数据的分类             
+
+annotate(geom = 'text', x = , y = , label = '', size , color )     在图形的中间添加文字内容
+annotate(geom = 'text', x = 'suv', y = 60 , label = '123', size = 10 , color = 'red' )    离散变量时，标注。
+
+
+
+
+
+5.    统计转换     Statistics
+
+
