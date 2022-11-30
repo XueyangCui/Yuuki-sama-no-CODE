@@ -70,4 +70,67 @@ annotate(geom = 'text', x = 'suv', y = 60 , label = '123', size = 10 , color = '
 
 5.    统计转换     Statistics
 
+不能在几何对象中使用：   stat_summary():  
+  #在x处唯一值处汇总y值
+  stat_function(): #根据x值得函数计算y值
+
+  stat_summary(x, y, fun, fun.max， fun.min) 实例：
+  stat_summary(fun = mean, 
+                fun.min= function(x) {mean(x)- sd(x)},
+                fun.max = function(x) {mean(x)+ sd(x)},
+                geom = 'pointrange', color = 'red')
+
+
+
+stat_smooth 和 geom_smooth相同
+geom_smooth(method)= 'lm',
+            formula = y ~ x,       #poly(x, 2)    2为多项式得最高次幂
+            se = FALSE)   #不添加置信区间    
+
+
+6.    坐标系 coordinante     默认coord_cartesian()
+
+        coord_flip() 坐标轴反转，如绘制水平条形图。
+        coord_fixed() 固定ratio = y/x 的比例。
+        coord_polar()  转化为极坐标系， 条形图即为转为饼图。
+
+
+
+7.  位置调整   position
+
+        position_stack()   竖直堆叠
+        position_fill()    竖直（百分比）堆叠， 比例缩放控制高度为1.
+        position_dodge()   position_dodge2()  水平堆叠（bar图的每个x分类中再按照分类信息进行分组）
+
+        geom_bar(position = position_dodge(preserve = 'single'))
+
+
+        position_jitter(): 给每个散点增加一点随机噪声（抖散图）
+
+        geom_point(position = 'jitter')   避免有散点重叠
+
+8. 多个图形再画板中排布时可以借助 patchwork  packages    
+
+p1  |  (p2 / p3)
+
+
+
+9.  分面  facet     根据分类变量进行绘图
+
+facet_wrap(~   ,   scales = )     
+#分面形式： ~分类变量， ~分类变量1 + 分类变量2 . 
+#  scales 可以设置坐标的刻度共用   'fixed', 'free', 'free_x', 'free_y'  
+#ncol， nrow设置子图的放置方式。
+
+
+
+facet_grid()， 行分类变量 ~ 列分类变量
+
+
+10. 主题 theme
+
+
+
+     
+
 
