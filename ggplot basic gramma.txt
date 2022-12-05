@@ -129,7 +129,7 @@ facet_grid()， 行分类变量 ~ 列分类变量
 
 10. 主题 theme
 
-
+        theme_bw()
 
      
 
