@@ -1,3 +1,26 @@
 核心组成部件： 管道符号   shift+ctrl+m 
 
-管道的机制：
+管道的机制：   默认将数据传递给下一个函数的第一个参数，从而实现忽略第一个参数的额外输入。
+
+多次使用该数据时，在非第一个参数的位置可以直接使用   .    进行代替
+
+        mtcars %>% plot(mpg~disp, data = . )
+
+        iris %>% .[1:3]
+        iris %>% .$Species
+        iris %>% pull(Species)      #只有函数是可以直接不用写. 的，在非函数方式取列和选择数据[]  时还是需要使用 . 
+
+
+数据读写包：  readr:  read_csv()          write_csv()         
+
+            readxl     read_excel()       read_xls(), 读取xls        readxlsx()， 读取xlsx
+
+            jsonlite       读json   read_json(),      fromJSON(),    写json    write_json(),    toJSON()
+
+
+
+
+
+
+
+
