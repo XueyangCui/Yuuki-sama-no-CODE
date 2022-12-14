@@ -1,0 +1,11 @@
+1.    一元线性回归：
+
+RSS residual sum of squares  残差平方和，   通过取最小值，确定最优的参数。
+
+最小二乘法：
+lm(data, formula = y~x)
+summary()
+
+一元线性回归的目标： 1.估计回归系数a,b 
+                    2. 对线性方程进行显著性检验（a）
+                    3. 拟合结果对比：  multiple R-squared         Adjusted R-squared 
