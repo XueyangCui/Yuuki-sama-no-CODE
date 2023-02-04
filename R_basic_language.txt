@@ -371,4 +371,7 @@ print(x, n = )    #显示数据框时可以通过n确定要显示的行数
   readr 包中的函数：   read_csv()    read_table2()
   readxl 包中：   read_excel()
 
-  
+     
+
+
+     1
