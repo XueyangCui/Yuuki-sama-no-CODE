@@ -15,10 +15,45 @@ data structure
 
 ---------------------------
 
+numeric   -------integer-----------double
+
+character
+
+logic
+
+数据的类型常见
+
+---------------------------------------------
+
+数据的容器
+
+----------------------------------------------
 
 
+vector:
+
+a = c(4,5,6)
+
+a
 
 
+常用的函数  in Base-R:
+    vector(mode = 'logical',  length = 0)
+    as.vector(x, mode = 'any')
+    is.vector(x, mode = 'any')
+-------------------------------------------------
 
+
+matrix
+
+m[row, col]: select an element
+
+b = matrix(1:12 , 
+            nrow = 3,
+            byrow = F,
+            dimnames = list(c('row1', 'row2', 'row3'), c('col1', 'col2', 'col3', ''))
+)
+
+--------------------------------------------------
 
 
