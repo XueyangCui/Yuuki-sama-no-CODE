@@ -50,7 +50,7 @@ m[row, col]: select an element
 
 b = matrix(1:12 , 
             nrow = 3,
-            byrow = F,
+            byrow = F,    #默认为按列进行排列，故此应为默认值。
             dimnames = list(c('row1', 'row2', 'row3'), c('col1', 'col2', 'col3', ''))
 )
 
