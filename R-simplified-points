@@ -47,6 +47,13 @@ a
     as.vector(x, mode = 'any')
     is.vector(x, mode = 'any')
 
+A%in%B    #A是否存在于B中
+
+#向量的排序
+
+sort(data, decreasing = T,  na.last = T, )      
+
+
 
 
 -------------------------------------------------
