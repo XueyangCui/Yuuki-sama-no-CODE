@@ -1,3 +1,21 @@
 物质性质网站：
 
-1、
+1、drug bank     
+2、pubchem    https://pubchem.ncbi.nlm.nih.gov/
+3、HSDB       
+4、TOXNET        
+5、chemspider               http://www.chemspider.com/
+
+
+
+
+计算性质网站：
+
+1、xlogp3    http://www.sioc-ccbg.ac.cn/?p=42&software=xlogp3
+2、alogps    https://vcclab.org/lab/alogps/
+
+
+
+
+通过Caco-2 Papp计算人以及大鼠的肠道通过率   https://doi.org/10.1007/s11095-006-9041-2
+通过HBD和HSA进行肠道吸收的预测             https://pubs.acs.org/doi/10.1021/jm9810102
