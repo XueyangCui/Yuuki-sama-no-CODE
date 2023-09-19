@@ -1,0 +1,82 @@
+rm(list = ls())
+
+library(readxl)
+library(ggplot2)
+library(tidyverse)
+library(ggforce)
+library(factoextra)  # For visualizing PCA results
+library(cluster)     # For creating groups
+
+data <- read_excel("D:/ゆうき様の仕事ファイル/R/data_analysis/PCA/脂肪酸/07.13/pca_dele.xlsx")
+data <- as.data.frame(data) 
+rownames(data) = data[,1]
+data = data[,-1]
+
+head(data)
+
+
+
+
+pca.out <- prcomp(data[, 1:36], 
+                     scale = TRUE  #标准化
+                     )   #prcomp()进行PCA分析。
+#pca的结果里 center是均值，scale是标准差，x是矩阵关于个体在主成分上的具体的数值,rotation是每个变量主成分上的权重
+#pca_result$center 查看代码
+
+biplot(pca.out, scale = 0 )  #看各个个体在不同变量上程度，以及个体接近证明特征接近，在选定的PC上的接近
+
+summary(pca.out)   #看PC对变量的解释程度
+
+fviz_eig(pca.out, addlabels = T)
+
+
+
+fviz_pca_ind(pca.out,
+             col.ind = data$group,
+             addEllipses = T,
+             geom = ('point'))
+
+
+fviz_pca_ind(pca.out,             
+             col.ind=data$group,             
+             mean.point=F,             
+             addEllipses = T,               
+             legend.title="Groups",              
+             ellipse.type="t",              
+             ellipse.level=0.95,              
+             palette = c("#CC3333", "#339999",'#4995c6', '#8481BA'))
+
+plotdat <- as.data.frame(pca.out$x[, 1:4])   #选择PC， ggplot只能使用dataframe画图
+plotdat$id <- rownames(plotdat)
+plotdat$group <- data$group
+
+rotdat <- as.data.frame(pca.out$rotation[,1:4])   #载荷量增加进去
+rotdat$acid <- rownames(rotdat)   #把酸名字增加进去
+
+
+ggplot() + geom_text(data = plotdat,
+                     aes(x = PC1,
+                     y = PC2,
+                     label = id),
+                     size = 3) +
+  
+
+  
+theme_bw() + theme(panel.grid.major=element_line(colour=NA), panel.grid.minor = element_blank()) +
+  
+geom_hline(aes(yintercept = 0), colour="gray88", linetype="dashed") + 
+
+geom_vline(aes(xintercept = 0), colour="gray88", linetype="dashed") +
+
+
+scale_y_continuous(sec.axis = sec_axis(~./8)) + scale_x_continuous(sec.axis = sec_axis(~./15)) +
+#外加两个坐标轴
+  
+  geom_segment(data = rotdat,aes(x=0, xend= PC1*25, y=0, yend= PC2*10), arrow = arrow(length = unit(0.03, "npc")), colour = 'red') +
+  #线段函数
+  
+  geom_text(data = rotdat,aes(x = PC1*26, y = PC2*11, label = acid), size = 4, colour = 'red')+
+  
+stat_ellipse(data =plotdat,aes(x = PC1, y = PC2, colour = group, group = group), level = 0.90,type ="t", linetype =2)+
+  
+geom_point(data =plotdat,aes(x = PC1, y = PC2, colour = group,size = 3))

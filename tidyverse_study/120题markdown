@@ -1,0 +1,206 @@
+---
+title: "tidyverse入门"
+author: "Yuuki"
+date: "2023-09-10"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+
+###题目1（创建数据框）：将下面的字典创建为DataFrame
+
+```{r}
+df = tibble(
+grammer = c("Python","C","Java","GO", NA,"SQL","PHP","Python"),
+score = c(1,2,NA,4,5,6,7,10)
+)
+df
+
+```
+####补充：按行录入式创建数据框
+
+```{r}
+df = tribble(
+~ grammer, ~ score,
+"Python", 1,
+"C", 2,
+"Java", NA,
+"GO", 4,
+NA, 5,
+"SQL", 6,
+"PHP", 7,
+"Python", 10
+)
+df
+```
+####补充：按行录入式创建数据框
+
+```{r}
+df = tribble(
+~ grammer, ~ score,
+"Python", 1,
+"C", 2,
+"Java", NA,
+"GO", 4,
+NA, 5,
+"SQL", 6,
+"PHP", 7,
+"Python", 10
+)
+df
+```
+
+
+###问题2（筛选行）：提取含有字符串”Python” 的行
+```{r}
+df %>%
+filter(grammer == "Python")
+```
+
+###题目3（查看列名）：输出df 的所有列名
+
+```{r}
+names(df)
+```
+###题目4（修改列名）：修改第2 列列名为”popularity”      rename函数
+
+```{r}
+df <- df %>% 
+  rename(popularity = score)
+df
+```
+
+###题目5（统计频数）：统计grammer 列中每种编程语言出现的次数
+
+
+```{r}
+table(df$grammer)
+# 或者
+df %>%
+count(grammer)
+```
+### 题目6（缺失值处理）：将空值用上下值的平均值填充 zoo包的na.approx()
+
+```{r}
+df = df %>%
+mutate(popularity = zoo::na.approx(popularity))
+df
+```
+## 题目7（筛选行）：提取popularity 列中值大于3 的行
+
+```{r}
+df %>%
+filter(popularity > 3)
+```
+###题目8（数据去重）：按grammer 列进行去重
+
+```{r}
+df %>%
+distinct(grammer, .keep_all = TRUE)
+```
+###题目9（数据计算）：计算popularity 列平均值
+
+```{r}
+df %>%
+summarise(popularity_avg = mean(popularity))
+```
+题目10（格式转换）：将grammer 列转换为序列
+
+
+```{r}
+df$grammer
+# 或者
+ df %>%
+ .$grammer
+# 或者
+df %>%
+pull(grammer)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
