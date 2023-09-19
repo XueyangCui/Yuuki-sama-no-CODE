@@ -1,0 +1,52 @@
+#--------------------------------------权重线性回归计算---------------#
+
+rm(list = ls())
+
+library(readxl)
+library(ggplot2)
+library(tidyverse)
+data <- read_excel("C:/Users/240yuuka/Desktop/0915紫外结果.xlsx")
+
+data <- as.data.frame(data) 
+
+
+#设置下线性回归的方程，面积在y，浓度在x
+x <- data$conc
+y <- data$area
+w <- 1/x^2
+
+
+fit <- lm(y ~ x, weights = w)
+
+
+#如何进行权重线性回归的计算？
+# 已知的加权线性回归方程的系数,根据上面的计算来填入
+
+intercept <-  as.numeric(fit$coefficients[1])   #指定fit结果列表中的数据为线性预测的结果
+
+slope <- as.numeric(fit$coefficients[2])
+
+# 根据待测物的新的y值进行预测  area
+new_y <- data$unknown
+
+# 根据加权线性回归方程计算预测的新x值
+new_x <- (1 / slope) * (new_y - intercept)
+
+# 打印预测结果
+print(new_x)
+
+#权重的方程直接进行回算即可
+
+final_result <- tibble(conc = new_x,
+                       name = data$id,
+                       theory = c(1,1,1,1,1,1,5,5,5,5,5,5,10,10,10,10,10,10))
+
+final_result <- final_result %>% mutate(relative = final_result$conc/final_result$theory) %>% 
+  mutate(real = relative/data$upright)
+
+final_result
+
+
+
+
+
