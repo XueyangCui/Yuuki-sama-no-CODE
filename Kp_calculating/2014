@@ -1,0 +1,99 @@
+#-------------------------doi:10.1002/jps.24011----------------------#
+
+
+library(tidyverse)
+library(readxl)
+
+data <- 'C:/Users/240yuuka/Desktop/Kp_calculate.xlsx'
+
+file <-read_xlsx(path = data, sheet=1)  #设置excel中的sheet的方法
+
+file2 <- file %>% select(2:9)   #除掉名字一列
+#酸性药物进行计算
+
+partion_coefficient <- function(Fw,Fp,Fnl,Fnpl,Fapl,Fl,Fint,pH){
+  pKa <- 12.54
+  alpha <- 10^-3
+  P <- 10^1.2
+  
+  
+  pH_pl <- 7.3          #血浆中的pH值
+  Fw_pl <- 0.96      #血浆中水的体积分数
+  Fp_pl <- 0.06         #血浆中蛋白质的组织分数
+  Fl_pl <- 0.02      #血浆中脂质的分布函数
+  fu_pl <- 0.54      #血浆中药物游离浓度
+  
+  sum_tissue <- Fw+Fp+Fl
+  Fw <- Fw/sum_tissue    #归一化组织的三大成分，水、蛋白、脂质
+  Fp <- Fp/sum_tissue
+  Fl <- Fl/sum_tissue
+  
+  sum_plasma <- Fw_pl+Fp_pl+Fl_pl
+  Fw_pl <- Fw_pl/sum_plasma     #归一化血浆中的三大组分
+  Fp_pl <- Fp_pl/sum_plasma
+  Fl_pl <- Fl_pl/sum_plasma
+    
+  Fp_int <- Fp_pl*0.37      #组织间隙液的分布系数计算的蛋白质和水的组成计算，经验公式
+  Fw_int <- 1 - Fp_int
+  
+  Fcell <- 1- Fint     #组织由细胞和间隙液组成，两者的加和为1
+  
+  #-----------------------------------------组织间隙液计算#
+  
+  Kp_pl <- Fw_pl/Fp_pl*(1/fu_pl-1)    #用于计算下一步的fu_int组织间隙液的分布系数
+  
+  fu_int <- 1/(1+Fp_int* Kp_pl/Fw_int)
+  
+  #------------------------------------以下为求解细胞中的含量的计算#
+  sum_lipid <- Fapl+Fnl+Fnpl
+  Fapl <- Fapl/sum_lipid*Fl
+  Fnl <- Fnl/sum_lipid*Fl
+  Fnpl <- Fnpl/sum_lipid*Fl
+  
+  
+  Fw_cell <- (Fw - Fw_int*Fint)/Fcell
+  
+  Fp_cell <- (Fp - Fp_int*Fint)/Fcell
+  
+  Fapl_cell <- Fapl/Fcell
+  Fnpl_cell <- Fnpl/Fcell
+  Fnl_cell <- Fnl/Fcell     #细胞中的体积归一化计算
+  
+  Tmp <-  1.0 + 10.0^(pH - pKa)								# 1.0 / F_Neutral for tissue
+  Fneutral <- 1/Tmp                           # 中性化合物在组织中所占的比例
+  Fcharged <- 1-Fneutral
+  
+  Tmp_pl <- 1.0 + 10.0^(pH_pl - pKa)
+  Fneutral_pl <- 1/(1+10^(7.3-pKa))    #使用plasma中的pH值
+  Fcharged_pl <- 1-Fneutral_pl
+  
+  DOW = P * (((1 - alpha) / Tmp) + alpha)						# Distribution coefficient for tissue   中性脂
+  DOW_pl = P * (((1.0 - alpha) / Tmp_pl) + alpha)					#Distribution coefficient for plasma
+  
+  Knpl <- P
+  
+  Ka_b <- (Fneutral+alpha*Fcharged)/(Fneutral_pl+alpha*Fcharged_pl)
+  
+  Knl <- DOW   #中性脂计算
+  
+  Kapl <- Knpl*(Fneutral+ 0.05*Fcharged)   				# Acidic phospholipid:water PC
+  
+  #Cell: plasma PC for ionizable species
+  Ka_b = (((1 - alpha) / Tmp) + alpha) / (((1 - alpha) / Tmp_pl) + alpha)		
+
+  Kp <- 0.163+0.0221*Knpl
+  
+  fu_cell <- Fw_cell/(Fw_cell+Fp_cell*Kp+Fapl_cell*Kapl+Fnpl_cell*Knpl
+                      +Fnl_cell*Knl)
+  
+  
+  #----------------汇总计算----------#
+  
+  Kt_pl <- (Fint/fu_int*Fw_int+Ka_b*Fcell*Fw_cell/fu_cell)*fu_pl/Fw_pl
+  
+}
+
+result_cal<- pmap_dbl(file2 , ~ partion_coefficient(...))
+
+file <- file %>% mutate(ktp = result_cal)
+file
