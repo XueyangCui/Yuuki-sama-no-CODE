@@ -1,3 +1,21 @@
+color1 <- c('#8ECFC9','#FFBE7A','#FA7F6F','#82B0D2','#BEB8DC','#E7DAD2')
+
+color2 <- c('#2878b5','#9ac9db','#f8ac8c','#c82423','#ff8884')
+
+color4 <- c("#FF99CC","#99CC00","#FF9999","#FF9900")
+
+color5 <- c("#81B29A","#F2CC8F","#EE4431")
+
+library(ggsci)
+cl=pal_lancet(palette = "lanonc",alpha = 1)(9)       #调整调色板选择颜色
+color3 <- cl
+
+library(scales)
+show_col(color3)     #可视化显示颜色的合适与否
+
+#------------------------------------------------------------------#
+
+
 #自定义图表主题，对图表主题做精细调整；
 top.mar=0.2 #Sets the margin at the top of the plot to 0.2 inches.
 right.mar=0.2
@@ -29,16 +47,25 @@ mytheme<-theme_classic()+
         panel.grid = element_blank(),
         
         plot.title = element_text(hjust=0.5,size = 14),
+        
         axis.title.y = element_text(size= 12, hjust = 0.5, vjust = 1),
+        
         axis.text.x = element_text(size = 12),
+        
         axis.text.y = element_text(size = 12),
         
-        plot.margin=unit(x=c(top.mar,right.mar,bottom.mar,left.mar),
+        plot.margin=unit(x=c(top.mar,right.mar,bottom.mar,left.mar),   #注意此处的margin调整，是使用断轴时无法调整的
                          units="inches")
-        )
-
-#设置自己的颜色，用于调色使用
-mycolor <- c("#FF99CC","#99CC00","#FF9900")
+  )
 
 
-#注意此处的margin调整，是使用断轴时无法调整的
+
+
+#-----------------------------------------------------------------------#
+                    # how to use these?
+
+
+p3+ mytheme +scale_fill_manual(values=alpha(color1,0.8), # alpha添加透明度颜色
+                               name = '')  
+
+
