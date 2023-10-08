@@ -1,0 +1,44 @@
+#自定义图表主题，对图表主题做精细调整；
+top.mar=0.2 #Sets the margin at the top of the plot to 0.2 inches.
+right.mar=0.2
+bottom.mar=0.2
+left.mar=0.2
+#设置图例的位置、大小和样式，并对字体样式、坐标轴的粗细、颜色、刻度长度等进行限定；
+##这里通过legend.position将图例置于绘图区域的左上方；
+mytheme<-theme_classic()+
+  theme(text=element_text(family = "sans",colour ="gray30"),
+        
+        #调节图标的文字的大小
+        legend.text=element_text(colour ="gray30",size = 8),  
+        
+        legend.title=element_text(colour ="gray30",size = 10),
+        
+        legend.key.size=unit(4,units = "mm"),   #调整图例中表示分类的颜色或者形状的大小
+        
+        legend.position=c(0.10,0.88), #Sets the position of the legend within the plot. 
+        #Here, it's positioned at 10% from the left and 88% from the bottom of the plot
+        
+        #设置坐标轴的粗细
+        axis.line = element_line(size = 0.4,colour = "gray30"),
+        
+        #坐标轴上刻度的线条粗细
+        axis.ticks = element_line(size = 0.4,colour = "gray30"),
+        
+        axis.ticks.length = unit(1.5,units = "mm"),
+        
+        panel.grid = element_blank(),
+        
+        plot.title = element_text(hjust=0.5,size = 14),
+        axis.title.y = element_text(size= 12, hjust = 0.5, vjust = 1),
+        axis.text.x = element_text(size = 12),
+        axis.text.y = element_text(size = 12),
+        
+        plot.margin=unit(x=c(top.mar,right.mar,bottom.mar,left.mar),
+                         units="inches")
+        )
+
+#设置自己的颜色，用于调色使用
+mycolor <- c("#FF99CC","#99CC00","#FF9900")
+
+
+#注意此处的margin调整，是使用断轴时无法调整的

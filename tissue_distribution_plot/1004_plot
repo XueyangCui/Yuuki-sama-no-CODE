@@ -14,33 +14,54 @@ data_1$time <- as.character(data_1$time)
 tissue_data <- as.data.frame(data_1)
 
 tissue_data$time<- factor(tissue_data$time,
-                              levels = c('5 min', '15 min', '60 min'),ordered = TRUE)
+                          levels = c('5 min', '15 min', '60 min'),ordered = TRUE)
 
 #factors 用于指定柱状图的顺序
 tissue_data$identity<- factor(tissue_data$identity,
-                        levels = c('Plasma','Duodenum','Stomach','Liver',
-                                   'Heart', 'Lung', 'Muscle', 'Kidney',
-                                   'Brain', 'Spleen'),ordered = TRUE)
+                              levels = c('Plasma','Liver',
+                                         'Heart', 'Lung', 'Muscle', 'Kidney',
+                                         'Brain', 'Spleen'),ordered = TRUE)
 
 #自定义图表主题，对图表主题做精细调整；
-top.mar=0.2
+top.mar=0.2 #Sets the margin at the top of the plot to 0.2 inches.
 right.mar=0.2
 bottom.mar=0.2
 left.mar=0.2
 #设置图例的位置、大小和样式，并对字体样式、坐标轴的粗细、颜色、刻度长度等进行限定；
 ##这里通过legend.position将图例置于绘图区域的左上方；
 mytheme<-theme_classic()+
-  theme(text=element_text(family = "sans",colour ="gray30",size = 12),
-        legend.text=element_text(colour ="gray30",size = 8),
+  theme(text=element_text(family = "sans",colour ="gray30"),
+        
+        #调节图标的文字的大小
+        legend.text=element_text(colour ="gray30",size = 8),  
+        
         legend.title=element_text(colour ="gray30",size = 10),
-        legend.key.size=unit(4,units = "mm"),
-        legend.position=c(0.10,0.88),
+        
+        legend.key.size=unit(4,units = "mm"),   #调整图例中表示分类的颜色或者形状的大小
+        
+        legend.position=c(0.10,0.88), #Sets the position of the legend within the plot. 
+        #Here, it's positioned at 10% from the left and 88% from the bottom of the plot
+        
+        #设置坐标轴的粗细
         axis.line = element_line(size = 0.4,colour = "gray30"),
+        
+        #坐标轴上刻度的线条粗细
         axis.ticks = element_line(size = 0.4,colour = "gray30"),
+        
         axis.ticks.length = unit(1.5,units = "mm"),
+        
+        panel.grid = element_blank(),
+        
+        plot.title = element_text(hjust=0.5,size = 14),
+        axis.title.y = element_text(size= 12, hjust = 0.5, vjust = 1),
+        axis.text.x = element_text(size = 12),
+        axis.text.y = element_text(size = 12),
+        
         plot.margin=unit(x=c(top.mar,right.mar,bottom.mar,left.mar),
-                         units="inches"))
+                         units="inches")
+        )
 
+#设置自己的颜色，用于调色使用
 mycolor <- c("#FF99CC","#99CC00","#FF9900")
 
 
@@ -76,39 +97,24 @@ p1<- ggplot(data=tissue_data,aes(x=identity,y=conc,group = time, fill=time))+
                
                linewidth = 0.5)+   #调节errorbar线的粗细
   
-  
-  theme_classic(base_family = 'serif')+
-  
-  theme(panel.grid = element_blank(),
-        plot.title = element_text(hjust=0.5,size = 15),
-        axis.title.y = element_text(size= 15, hjust = 0.5, vjust = 1),
-        axis.text.x = element_text(size = 15),
-        axis.text.y = element_text(size = 10),
-        legend.title = element_text(size = 12),
-        legend.text = element_text(size = 10),    #调节图标的文字的大小
-        legend.position = c(0.10, 0.88)
-        )+
-  
-  
-  scale_fill_manual(values = c("#81B29A","#F2CC8F","#EE4431"),
-                    
-                    name = 'Dose Time')+
-  
   labs(x='', y = 'Concentration(ng/mL,ng/g)', title = 'TP Tissue Distribution',)+
-  scale_y_continuous( breaks = seq(0,1200,200),labels = seq(0, 1200, 200),
-                      expand = c(0,0))+
-  coord_cartesian(ylim = c(0, 1200 ))
+  coord_cartesian(ylim = c(0, 900 ))+
+           #令scales = "free"或1，使上下两半部分高度相同；
+           #使用scale_y_continuous定义“断点”之前的标签；
+           #使用ticklabels参数自定义“断点”之后的标签；
+  scale_y_continuous(limits = c(0,900),
+                     breaks = seq(0,225,25),
+                     label = seq(0,225,25),
+                     expand = c(0,0))+
+  scale_y_break(c(225, 275),scales = 0.2,
+                ticklabels=seq(300,900,200),
+                expand=expansion(add = c(0, 10)))+  #断轴的上移
   
-p3 <- p1+  #令scales = "free"或1，使上下两半部分高度相同；
-  #使用scale_y_continuous定义“断点”之前的标签；
-  #使用ticklabels参数自定义“断点”之后的标签；
-  scale_y_continuous(limits = c(0, 7000),
-                                breaks = seq(0,900,100),
-                                label = seq(0,900,100))+
-  scale_y_break(c(900, 1100),scales = "free",
-                ticklabels=seq(1100,7000,1000),
-                expand=expansion(add = c(0, 0)))
+  mytheme +
+  scale_fill_manual(values=alpha(mycolor,0.8), #使用预设的颜色设置
+                               name = 'Dose Time')  #alpha添加透明度颜色
 
-p3+ mytheme +scale_fill_manual(values=alpha(mycolor,0.8))  #alpha添加透明度颜色
 
-#本文档中的主要的特点是添加了自己的主题以及自己的颜色随时用于画图使用。
+print(p1) 
+
+#theme 中的margin以及legend 位置的调整因为两个坐标轴，break的加入而无法实现
