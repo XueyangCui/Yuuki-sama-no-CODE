@@ -1,0 +1,68 @@
+---
+title: "tidyverse dplyr"
+author: "Yuuki"
+date: "2023-10-10"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+```
+
+## dolyr 进行数据操作
+
+```{r, eval=FALSE}
+select() # 选择列 
+filter()
+slice() #筛选行 
+arrange()  #对行排序 
+mutate() # 修改列/创建新列 
+summarize() #汇总
+```
+
+
+### select 函数
+#### 选择列，包括对数据框做选择列、调整列序、重命名列。
+```{r, eval=FALSE}
+df %>% select(name, sex, math) # 或者 select(2, 3, 5)    选择列名进行列选择
+```
+#### 助手函数    
+##### everything(): 选择所有列
+##### starts_with(): 以某前缀开头的列名 ends_with(): 以某后缀结尾的列名 contains(): 包含某字符串的列名
+##### where(): 应用一个函数到所有列，选择返回结果为 TRUE 的列，比如与 is.numeric 等函数 连用
+```{r, eval=FALSE}
+df %>% select(starts_with("m"))
+df %>% select(where(is.numeric))  #根据列的数据类型筛选
+df[, 4:8] %>% select(where(~ sum(.x, na.rm = TRUE) > 3000)) # purrr风格的函数，计算并且进行TRUE选择
+df %>% select(where(~ n_distinct(.x) < 10)) #
+```
+#### 用 - 删除列
+```{r, eval=FALSE}
+df %>% select(-c(name, chinese, science)) 
+df %>% select(math, everything(), -ends_with("e")) # 经典搭配， everything用于提前某列，最后再删除某些列。
+```
+#### 移动列的位置顺序
+```{r, eval=FALSE}
+relocate(.data, ..., .before, .after)    #调整列的顺序函数，指定在啥之前或者之后，其实和直接select效果一样
+df %>% relocate(where(is.numeric), .after = name) #指定在name列之后，用select一样可以实现
+```
+#### 列改名
+```{r, eval=FALSE}
+df %>% rename(数学 = math, 科学 = science)   #部分改名
+```
+
+### Cross 函数
+```{r, eval=FALSE}
+across(.cols = everything(), .fns = NULL, ..., .names)
+```
+#### .cols 为根据选择列语法选定的列范围； 
+
+#### .fns 为应用到选定列上的函数7，它可以是： NULL：不对列作变换； 一个函数，如 mean; 一个 purrr 风格的匿名函数，如 ~ .X * 10 多个函数或匿名函数构成的列表 
+
+#### .names 用来设置输出列的列名样式，默认为 {col}_{fn}
+
+##### across(everything(), .fns): 在所有列范围内，代替后缀 _all across(where(), .fns): 在满足条件的列范围内，代替后缀 _if across(.cols, .fns)：在给定的列范围内，代替后缀 _at
+
+
