@@ -30,7 +30,13 @@ df %>% select(name, sex, math) # 或者 select(2, 3, 5)    选择列名进行列
 ```
 #### 助手函数    
 ##### everything(): 选择所有列
-##### starts_with(): 以某前缀开头的列名 ends_with(): 以某后缀结尾的列名 contains(): 包含某字符串的列名
+##### starts_with(): 以某前缀开头的列名 ends_with(): 以某后缀结尾的列名 contains(): 
+
+用: 选择连续的若干列 
+用! 选择变量集合的余集（反选）
+& 和 | 选择变量集合的交或并 ,表示 和
+c() 合并多个选择
+
 ##### where(): 应用一个函数到所有列，选择返回结果为 TRUE 的列，比如与 is.numeric 等函数 连用
 ```{r, eval=FALSE}
 df %>% select(starts_with("m"))
@@ -65,4 +71,99 @@ across(.cols = everything(), .fns = NULL, ..., .names)
 
 ##### across(everything(), .fns): 在所有列范围内，代替后缀 _all across(where(), .fns): 在满足条件的列范围内，代替后缀 _if across(.cols, .fns)：在给定的列范围内，代替后缀 _at
 
+### mutate 函数
+#### 用 dplyr 包中的 mutate() 创建或修改列，返回原数据框并增加新列
+
+```{r, eval=FALSE}
+df %>% mutate(new_col = 5)     #增加列为同一个数值
+df %>% mutate(new_col = 1:n())   #n() 返回当前分组的样本数, 未分组则为总行数。
+```
+
+#### 计算新列
+```{r, eval=FALSE}
+df %>% mutate(total = chinese + math + english + moral + science)  #根据列名进行行值的计算
+
+```
+### 此处一定不可以使用sum，mean，这些函数为进行列运算的。
+
+##### 在同一个 mutate() 中可以同时创建或计算多个列，它们是从前往后依次计算，所以可以使用前面 新创建的列，例如
+```{r, eval=FALSE}
+df %>% mutate(med = median(math, na.rm = TRUE), #计算 df 中 math 列的中位数  
+              label = math > med, #创建标记 math 是否大于中位数的逻辑值列
+              label = as.numeric(label)) #用 as.numeric() 将 TRUE/FALSE 转化为 1/0
+```
+#### 修改多列
+##### 结合 across() 和选择列语法可以应用函数到多列，从而实现同时修改多列。
+
+##### (1) 应用函数到所有列 
+ 将所有列转化为字符型：
+```{r, eval=FALSE}
+df %>% mutate(across(everything(), as.character))
+```
+
+##### 应用函数到满足条件的列
+
+```{r, eval=FALSE}
+rescale = function(x) { 
+  rng = range(x, na.rm = TRUE)      #对range输入向量x
+  (x - rng[1]) / (rng[2] - rng[1])   #range函数输出值为最低到最高
+}
+df %>% mutate(across(where(is.numeric), rescale))
+```
+
+##### 应用函数到指定的函数
+```{r, eval=FALSE}
+as_tibble(iris) %>% 
+  mutate(across(contains("Length") | contains("Width"), ~ .x * 10)) 
+```
+## across函数结合了select函数的功能，并可以进行进一步的处理，但是这里的处理仅仅是列的修改
+因为结合了select函数，所以针对选择所有列、选择符合条件（条件筛选）和选择指定的列（后者为前面的包含的特殊情况）。
+
+#### 替换NA，主要函数两个 replace_na fill
+
+##### 实现用某个值替换一列中的所有 NA 值，该函数接受一个命名列表，其成分为 列名 = 替换值：
+```{r, eval=FALSE}
+starwars %>% 
+  replace_na(list(hair_color = "UNKNOWN", 
+                  height = mean(.$height, na.rm = TRUE)))  
+```
+
+##### 用前一个（或后一个）非缺失值填充 NA。有些表在记录时，会省略与上一条记录相同的内容，如 下表：
+```{r, eval=FALSE}
+gap_data %>% fill(site, species)
+```
+##### tidyr 包中的 fill() 适合处理这种结构的缺失值, 默认是向下填充，即用上一个非缺失值填充：
+
+##### 重新编码 if_else，case_when
+
+```{r, eval=FALSE}
+df %>% mutate(sex = if_else(sex == " 男", "M", "F"))
+df %>% 
+  mutate(math = case_when(math >= 75 ~ "High",
+                          math >= 60 ~ "Middle",
+                          TRUE ~ "Low"))#最后一个分支直接用 TRUE 表示若其他条件都不为 TRUE 时怎么做
+```
+
+
+### 筛选函数 filter
+筛选行，即按行选择数据子集，包括过滤行、对行切片、删除行。
+```{r, eval=FALSE}
+df_dup %>% filter(sex == " 男", math > 80)
+df_dup %>% filter(sex == " 女", (is.na(english) | math > 80))  #取并集
+df_dup %>% filter(between(math, 70, 80))   # 闭区间
+```
+##### between()  闭区间， 输出结果为True
+用: 选择连续的若干列 
+用! 选择变量集合的余集（反选）
+& 和 | 选择变量集合的交或并 ,表示 和
+c() 合并多个选择
+
+#### if_any if_all 特定筛选
+```{r, eval=FALSE}
+if_any(.cols, .fns, ...)   #fns为判断的条件，输出结果为逻辑判断，结合filter使用
+if_all(.cols, .fns, ...)
+df %>% filter(if_all(4:6, ~ .x > 75))
+df_dup %>% filter(if_all(everything(), ~ !is.na(.x))) #所有值都不是na的
+starwars %>% filter(if_any(everything(), ~ str_detect(.x, "bl")))
+df %>% filter(if_any(where(is.numeric), ~ .x > 90))
 
