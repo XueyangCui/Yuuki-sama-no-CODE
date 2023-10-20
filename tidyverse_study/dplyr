@@ -11,7 +11,7 @@ output:
 library(tidyverse)
 ```
 
-## dolyr 进行数据操作
+## dplyr 进行数据操作
 
 ```{r, eval=FALSE}
 select() # 选择列 
@@ -59,7 +59,7 @@ df %>% relocate(where(is.numeric), .after = name) #指定在name列之后，用s
 df %>% rename(数学 = math, 科学 = science)   #部分改名
 ```
 
-### Cross 函数
+### across 函数
 ```{r, eval=FALSE}
 across(.cols = everything(), .fns = NULL, ..., .names)
 ```
@@ -159,11 +159,176 @@ df_dup %>% filter(between(math, 70, 80))   # 闭区间
 c() 合并多个选择
 
 #### if_any if_all 特定筛选
+any 存在即可以，all则是要全部满足才可以
 ```{r, eval=FALSE}
 if_any(.cols, .fns, ...)   #fns为判断的条件，输出结果为逻辑判断，结合filter使用
 if_all(.cols, .fns, ...)
 df %>% filter(if_all(4:6, ~ .x > 75))
-df_dup %>% filter(if_all(everything(), ~ !is.na(.x))) #所有值都不是na的
+df_dup %>% filter(if_all(everything(), ~ !is.na(.x))) #所有值都不是na的  .x为dplyr的函数写法
 starwars %>% filter(if_any(everything(), ~ str_detect(.x, "bl")))
 df %>% filter(if_any(where(is.numeric), ~ .x > 90))
+
+```
+
+#### 对行切片：slice_*()   ##### n: 用来指定要选择的行数 prop: 用来指定选择的行比例
+```{r, eval=FALSE}
+slice(df, 3:7) # 选择 3-7 行 
+slice_head(df, n, prop) # 从前面开始选择若干行 
+slice_tail(df, n, prop) # 从后面开始选择若干行 
+slice_min(df, order_by, n, prop) # 根据 order_by 选择最小的若干行 
+slice_max(df, order_by, n, prop) # 根据 order_by 选择最大的若干行 
+```
+```{r, eval=FALSE}
+df %>% slice_max(math, n = 5)
+```
+
+#### 删除行
+##### 用 dplyr 包中的 distinct() 删除重复行（只保留第 1 个，删除其余）。
+```{r, eval=FALSE}
+df_dup %>% distinct()
+df_dup %>% distinct(sex, math, .keep_all = TRUE) # 只根据 sex 和 math 列判定重复
+```
+注：默认只返回选择的列，要返回所有列，需要设置参数 .keep_all = TRUE。
+
+##### 删除NA行：
+drop_na(), 可以利用filter结合if_all选择行去除na
+```{r, eval=FALSE}
+df_dup %>% drop_na()
+df_dup %>% drop_na(sex:math) #只删除某些列中包含NA
+df_dup %>% filter(!if_all(where(is.numeric), is.na)) #若要删除某些列都是 NA 的行，借助 if_all() 也很容易实现：
+```
+
+#### 对行排序
+arrange()
+```{r, eval=FALSE}
+df_dup %>% arrange(math, sex)
+df_dup %>% arrange(-math)
+
+```
+
+### 数据分组（透视表）
+##### 对未分组的数据框，一些操作如 mutate() 是在所有行上执行—---或者说，整个数据框是一个分 组，所有行都属于它。 
+##### 若数据框被分组，则这些操作是分别在每个分组上独立执行。可以认为是，将数据框拆分为更小的多个数据框。在每个更小的数据框上执行操作，最后再将结果合并回来。
+
+#### 数据分组
+```{r, eval=FALSE}
+df_grp = df %>% group_by(sex)
+ungroup(df_grp) # 解除分组
+```
+真正将数据框分割为多个分组：group_split(), 返回列表，其每个成分是一个分组数据框 
+将数据框分组（group_by），再做嵌套（nest），生成嵌套数据框：group_nest()
+```{r, eval=FALSE}
+iris %>% group_nest(Species)
+iris %>% 
+  group_by(Species) %>% 
+  group_map(~ head(.x, 2)) # 提取每组的前两个观测
+```
+group_map(.data, .f, ...): 返回列表 
+purrr 风格的分组迭代：将函数 .f 依次应用到分组数据框 .data 的每个分组上
+分组是一种强大的数据思维，当您想分组并分别操作（包括汇总）每组数据时，
+应该优先采用 group_by() + 操作，而不是分割数据 + 循环迭代。
+
+#### 数据汇总  summary 结果只保留分组列唯一值和新创建的汇总列。
+##### 常用的汇总函数
+n(): 观测数 
+n_distinct(var): 变量 var 的唯一值数目 
+sum(var), max(var), min(var), . . . 
+mean(var), median(var), sd(var), IQR(var), . . .
+```{r, eval=FALSE}
+df %>% 
+  group_by(sex) %>% 
+  summarise(n = n(),
+            math_avg = mean(math, na.rm = TRUE), 
+            math_med = median(math))   #进行了新创建的汇总列的结果汇总
+```
+
+##### 函数 summarise() ，配合 across() 可以对所选择的列做汇总。好处是可以借助辅助选择器或判 断条件选择多列，还能在这些列上执行多个函数，只需要将它们放入一个列表。
+本质是通过across的选择以及汇总的功能结合，对group的值或者整体进行一个新的汇总表输出。
+```{r, eval=FALSE}
+df %>% 
+  group_by(class, sex) %>% 
+  summarise(across(contains("h"), mean, na.rm = TRUE))    # na.rm = T
+```
+
+```{r, eval=FALSE}
+df %>% 
+  select(-name) %>% 
+  group_by(class, sex) %>% 
+  summarise(across(everything(), mean, na.rm = TRUE))
+```
+
+```{r, eval=FALSE}
+df_grp = df %>% 
+  group_by(class) %>% 
+  summarise(across(where(is.numeric), 
+                   list(sum=sum, mean=mean, min=min),  #对多列进行汇总
+                   na.rm = TRUE)) %>% 
+  pivot_longer(-class, names_to = c("Vars", ".value"), names_sep = "_") 
+  #改善结果的可读性，一行一个观测
+
+```
+list(sum=sum, mean=mean, min=min)指定了要应用的三个函数。
+这个列表中，每个函数都被命名了一个别名（sum、mean、min），这些别名将在后续的pivot_longer()函数中被用作新列名的一部分。
+在pivot_longer()函数中，names_to = c("Vars", ".value") 将Vars用于存储原始列的名称，而.value用于存储list()函数中的别名（sum、mean、min）。
+因此，最终的结果中，Vars列包含了原始列的名称，而.value列包含了对应函数（sum、mean、min）的计算结果。
+
+##### 支持多个值返回结果
+summarise() 以前只支持一个返回值的汇总函数，如 sum, mean 等。
+现在也支持多返回值（返回 向量值、甚至是数据框）的汇总函数，如 range(), quantile() 等。
+```{r, eval=FALSE}
+qs = c(0.25, 0.5, 0.75) 
+df_q = df %>% 
+  group_by(sex) %>% 
+  summarise(math_qs = quantile(math, qs, na.rm = TRUE), q = qs) 
+df_q %>% 
+  pivot_wider(names_from = q, values_from = math_qs, names_prefix = "q_")
+```
+
+## 数据重塑
+每个变量构成一列 
+每个观测构成一行 
+每个观测的每个变量值构成一个单元格
+
+#### 宽表的特点是：表比较宽，本来该是 ‘‘值” 的，却出现在 ‘‘变量（名）” 中。 这就需要给它变到 ‘‘值” 中，新起个列名存为一列，这就是所谓的宽表变长表。
+```{r, eval=FALSE}
+pivot_longer(data, cols, names_to, values_to, values_drop_na, ...)
+```
+data: 要重塑的数据框 
+cols: 用选择列语法选择要变形的列 
+names_to: 为存放变形列的列名中的’’ 值’’，指定新列名 
+values_to: 为存放变形列中的’’ 值’’，指定新列名 
+values_drop_na: 是否忽略变形列中的 NA
+names_prefix, names_sep, 名字中的前缀或者间隔。
+
+```{r, eval=FALSE}
+family %>% 
+  pivot_longer(-family, 
+               names_to = c(".value", "child"),   #换成'Vars'也行
+               names_sep = "_", 
+               values_drop_na = TRUE)
+df %>% pivot_longer(everything(), names_to = c(" 队员", ".value"))
+df %>% pivot_longer(-地区, names_to = " 年份", values_to = "GDP")                    
+
+```
+变形列的列名以 “_” 分割为两部分，用 names_to 指定这两部分的用途：
+“.value” 指定第一部分不用管将继续留作列名，并继承原数值，而第二部分，即包含 “child1’’、“child2’’，作为新变量 child 的 ‘‘值” 忽略变形列中的缺失值
+因为变成长表，就是列的数量会变化，其中一个用来继承列名字的一部分当变量，另外一个用于保存列数值（名字当做变量名）
+
+#### 长表的特点是：表比较长。 有时候需要将分类变量的若干水平值，变成变量（列名）
+```{r}
+pivot_wider(data, id_cols, names_from, values_from, values_fill, ...)
+```
+data: 要重塑的数据框 
+id_cols: 唯一识别观测的列，默认是除了 names_from 和 values_from 指定列之外的列 
+names_from: 指定列名来自哪个变量列 
+values_from: 指定列’’ 值’’ 来自哪个变量列
+values_fill: 若变宽后单元格值缺失，设置用何值填充
+```{r}
+animals %>% 
+  pivot_wider(names_from = Type, values_from = Heads, values_fill = 0)
+
+us_rent_income %>% pivot_wider(names_from = variable, values_from = c(estimate, moe)) #多个值列表
+```
+
+
 
