@@ -1,0 +1,30 @@
+#10.1080/00498250802503359  文献号
+
+#可以直接调用函数进行计算肝微粒体的清除率。
+
+library(tidyverse)
+
+Vmax <- c(1.062, 0.309, 0.649, 0.998)   # nmol/min/mg protein 
+Km <- c(54,168,31,30)      # uM
+
+data <- tibble(V = Vmax,
+               K = Km)
+data <- data %>% 
+  mutate(CL = V/K)       #计算的要求应该为上面的数据单位
+
+CLint_vitro <- sum(data$CL)   # 输入函数的单位为：mL/min/mg protein
+
+cal_clh <- function(CLint_vitro){     
+  Qh <- 55.2   # mL/min/kg
+  SF <- 40*44.8     # 44.8 mg protein / g liver     40 g liver / kg Body Weight
+                    #换算成为 mg protein / kg weight
+  f <- 1
+  CLint_vivo <- CLint_vitro * SF  # mL/min/kg
+  CLh <- Qh*f*CLint_vivo/(Qh + f*CLint_vivo)   # mL/min/kg
+  list(CLint_vivo=CLint_vivo, CLh=CLh, CLint_vitro = CLint_vitro)
+}  #充分混合模型计算肝清除率
+
+cal_clh(CLint_vitro)
+
+#注意加入的体外固有清除率的单位应该是 mL/min/mg protein
+
