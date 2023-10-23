@@ -1,0 +1,107 @@
+rm(list = ls())
+
+library(tidyverse)
+library(readxl)
+library(ggplot2)
+library(ggsignif)
+library(ggbreak)
+
+windowsFonts(KT=windowsFont('楷体'))
+
+data_1 <- read_excel("C:/Users/240yuuka/Desktop/tissue_without.xlsx")
+data_1$time <- as.character(data_1$time)
+
+
+tissue_data <- as.data.frame(data_1)
+
+tissue_data$time<- factor(tissue_data$time,
+                          levels = c('5 min', '15 min', '60 min'),ordered = TRUE)
+
+#factors 用于指定柱状图的顺序
+tissue_data$identity<- factor(tissue_data$identity,
+                              levels = c('Plasma','Liver',
+                                         'Heart', 'Lung', 'Muscle', 'Kidney',
+                                         'Brain', 'Spleen'),ordered = TRUE)
+a <- tissue_data %>% 
+  pivot_wider(names_from = identity, values_from = conc) %>% 
+  select(-c(1,2))
+
+b <- a$Plasma
+
+result <- a[,2:8]/b
+
+s1 <- result %>% slice_head(n = 5) %>% 
+  mutate(across(everything(), ~mean(.x))) %>% .[1,]   #从源头上实现了选择第一行
+
+s2 <- result %>% slice_tail(n = 5) %>% 
+  mutate(across(everything(), ~mean(.x))) %>% .[1,]
+
+s3 <- result %>% slice(6:10) %>% 
+  mutate(across(everything(), ~mean(.x))) %>% .[1,]
+
+merged_data <- rbind(s1, s2, s3) #选择第一行需要[1,] 逗号是必须要添加的
+
+#数据框中按照行进行叠加的语句。
+#rbing按照行增加，要求列数相等。
+#cbing按照列增加，要求行数相等。
+#tibble按照列增加数据，
+#tribble按照行增加数据。
+#tibble好处就是[]提取结果后不是输出向量而是输出tibble
+#dataframe转换函数 as_as_tibble
+
+#glimpse(),str()指示数据结构。
+
+merged_data %>% 
+  summary(across(everything(), mean))
+
+  #处理的思路在于首先长表变宽表，选择出来需要计算的列，然后单独提取出来做分母的列，然后进行tibble计算，
+  #单独提取出结果后计算整个的平均值。可以发现mutate直接输出最后结果，但是summary则是对统计结果进行了总结。虽然都是across函数。
+
+
+
+  #----另外一种数据处理方法：---------------------------------------------------------------------------------------------
+
+  rm(list = ls())
+
+library(tidyverse)
+library(readxl)
+library(ggplot2)
+library(ggsignif)
+library(ggbreak)
+
+windowsFonts(KT=windowsFont('楷体'))
+
+data_1 <- read_excel("C:/Users/240yuuka/Desktop/tissue_without.xlsx")
+data_1$time <- as.character(data_1$time)
+
+
+tissue_data <- as.data.frame(data_1)
+
+tissue_data$time<- factor(tissue_data$time,
+                          levels = c('5 min', '15 min', '60 min'),ordered = TRUE)
+
+#factors 用于指定柱状图的顺序
+tissue_data$identity<- factor(tissue_data$identity,
+                              levels = c('Plasma','Liver',
+                                         'Heart', 'Lung', 'Muscle', 'Kidney',
+                                         'Brain', 'Spleen'),ordered = TRUE)
+a <- tissue_data %>% 
+  pivot_wider(names_from = identity, values_from = conc) %>% 
+  select(c(3:10,1,2))
+
+b <- a$Plasma
+
+c <- a %>% select(-c(1,9,10)) 
+
+result <- c/b 
+
+d <- result %>% 
+  cbind(a[,9]) %>% 
+  group_by(time) %>% 
+  summarise(across(everything(),mean)) %>% 
+  select(c(2:8,1))
+  
+e <- d %>% pivot_longer(cols = c(1:7), names_to = 'identity',values_to = 'conc') %>% 
+  
+  group_by(identity) %>% 
+  summarise(across(conc,mean))
